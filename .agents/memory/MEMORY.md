@@ -1,0 +1,1 @@
+- [Generated client TypeScript compatibility](generated-client-tsconfig.md) — add `dom.iterable` when Orval's fetch client uses `Headers.entries()`.

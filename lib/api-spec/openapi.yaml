@@ -1,0 +1,364 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: REST API for the iserveu1st wallet assessment starter
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: users
+    description: User operations
+  - name: wallets
+    description: Wallet and transaction operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /health:
+    get:
+      operationId: getHealth
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /users:
+    get:
+      operationId: getUsers
+      tags: [users]
+      summary: List users
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /wallets:
+    post:
+      operationId: createWallet
+      tags: [wallets]
+      summary: Create a wallet for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletInput"
+      responses:
+        "201":
+          description: Created wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /wallets/{id}:
+    get:
+      operationId: getWallet
+      tags: [wallets]
+      summary: Get a wallet
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /wallets/{id}/dashboard:
+    get:
+      operationId: getWalletDashboard
+      tags: [wallets]
+      summary: Get wallet summary
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Wallet dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletDashboard"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /wallets/{id}/deposit:
+    post:
+      operationId: depositToWallet
+      tags: [wallets]
+      summary: Deposit money
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmountInput"
+      responses:
+        "200":
+          description: Deposit result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletActionResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /wallets/{id}/withdraw:
+    post:
+      operationId: withdrawFromWallet
+      tags: [wallets]
+      summary: Withdraw money
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmountInput"
+      responses:
+        "200":
+          description: Withdrawal result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletActionResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /wallets/{id}/transfer:
+    post:
+      operationId: transferBetweenWallets
+      tags: [wallets]
+      summary: Transfer money to another wallet
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferInput"
+      responses:
+        "200":
+          description: Transfer result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletActionResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /wallets/{id}/transactions:
+    get:
+      operationId: getWalletTransactions
+      tags: [wallets]
+      summary: List wallet transactions
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    User:
+      type: object
+      required: [id, name, email, createdAt, walletId]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        createdAt: { type: string, format: date-time }
+        walletId: { type: ["integer", "null"] }
+    UserInput:
+      type: object
+      required: [name, email]
+      properties:
+        name: { type: string, minLength: 1 }
+        email: { type: string, format: email }
+    Wallet:
+      type: object
+      required: [id, userId, userName, balance, createdAt]
+      properties:
+        id: { type: integer }
+        userId: { type: integer }
+        userName: { type: string }
+        balance: { type: number }
+        createdAt: { type: string, format: date-time }
+    WalletInput:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: integer, minimum: 1 }
+    AmountInput:
+      type: object
+      required: [amount]
+      properties:
+        amount: { type: number, exclusiveMinimum: 0 }
+    TransferInput:
+      type: object
+      required: [receiverWalletId, amount]
+      properties:
+        receiverWalletId: { type: integer, minimum: 1 }
+        amount: { type: number, exclusiveMinimum: 0 }
+    Transaction:
+      type: object
+      required: [id, senderWalletId, receiverWalletId, amount, type, status, createdAt]
+      properties:
+        id: { type: integer }
+        senderWalletId: { type: ["integer", "null"] }
+        receiverWalletId: { type: ["integer", "null"] }
+        amount: { type: number }
+        type:
+          type: string
+          enum: [DEPOSIT, WITHDRAWAL, TRANSFER]
+        status:
+          type: string
+          enum: [SUCCESS, FAILED]
+        createdAt: { type: string, format: date-time }
+        counterpartyName: { type: ["string", "null"] }
+    WalletActionResult:
+      type: object
+      required: [message, wallet, transaction]
+      properties:
+        message: { type: string }
+        wallet:
+          $ref: "#/components/schemas/Wallet"
+        transaction:
+          $ref: "#/components/schemas/Transaction"
+    WalletDashboard:
+      type: object
+      required: [wallet, transactions, totalDeposited, totalWithdrawn, totalTransferred]
+      properties:
+        wallet:
+          $ref: "#/components/schemas/Wallet"
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        totalDeposited: { type: number }
+        totalWithdrawn: { type: number }
+        totalTransferred: { type: number }
+    ErrorResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+
