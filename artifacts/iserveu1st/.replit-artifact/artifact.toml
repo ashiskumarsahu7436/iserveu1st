@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "iserveu1st Wallet System"
+description = "A basic full-stack wallet assessment starter with users, balances, deposits, withdrawals, transfers, transaction history, and a local PostgreSQL setup."
+version = "1.0.0"
+id = "artifacts/iserveu1st"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24446
+
+[services.development]
+run = "pnpm --filter @workspace/iserveu1st run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/iserveu1st", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/iserveu1st/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24446"
+BASE_PATH = "/"
